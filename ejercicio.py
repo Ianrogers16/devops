@@ -9,6 +9,9 @@ while not musica.replace(" ", "").isalpha():
     print("¡Error! No se permiten números en el nombre.")
     musica = input("Por favor, ingresa un tipo de musica válido: ")
 pelicula = input("Ingresa película: ")
+while not pelicula.replace(" ", "").isalpha():
+    print("¡Error! No se permiten números en el nombre.")
+    pelicula = input("Por favor, ingresa un tipo de musica válido: ")
 un_hobbie = input("Ingresa tus hobbies: ")
 
 
