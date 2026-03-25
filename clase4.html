@@ -1,0 +1,187 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cajero Automático Seguro</title>
+    <style>
+        :root {
+            --primary: #2c3e50;
+            --accent: #27ae60;
+            --danger: #e74c3c;
+            --bg: #f4f7f6;
+            --white: #ffffff;
+        }
+
+        body {
+            font-family: 'Segoe UI', Arial, sans-serif;
+            background-color: var(--bg);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+        }
+
+        .atm-card {
+            background: var(--white);
+            padding: 30px;
+            border-radius: 20px;
+            box-shadow: 0 15px 35px rgba(0,0,0,0.1);
+            width: 380px;
+            text-align: center;
+            transition: all 0.3s ease;
+        }
+
+        /* Control de pantallas */
+        .screen { display: none; }
+        .active { display: block; }
+
+        h2 { color: var(--primary); margin-bottom: 20px; font-weight: 600; }
+        p { color: #666; margin-bottom: 15px; }
+
+        input {
+            width: 85%;
+            padding: 12px;
+            margin: 10px 0;
+            border: 2px solid #eee;
+            border-radius: 8px;
+            font-size: 1.1rem;
+            text-align: center;
+            outline: none;
+            transition: border-color 0.3s;
+        }
+
+        input:focus { border-color: var(--accent); }
+
+        button {
+            width: 92%;
+            padding: 14px;
+            margin: 10px 0;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 1rem;
+            font-weight: bold;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            transition: 0.3s;
+        }
+
+        .btn-ingresar, .btn-op { background: var(--accent); color: white; }
+        .btn-ingresar:hover, .btn-op:hover { background: #219150; transform: translateY(-2px); }
+        
+        .btn-exit { background: #fdfdfd; color: var(--danger); border: 1px solid var(--danger); }
+        .btn-exit:hover { background: var(--danger); color: white; }
+
+        .balance-box {
+            background: #f8f9fa;
+            padding: 15px;
+            border-radius: 10px;
+            margin: 20px 0;
+            border-left: 5px solid var(--accent);
+        }
+
+        .balance-amount {
+            display: block;
+            font-size: 1.8rem;
+            color: var(--primary);
+            font-weight: bold;
+        }
+
+        #error-msg { color: var(--danger); font-weight: 500; min-height: 20px; }
+    </style>
+</head>
+<body>
+
+    <div class="atm-card">
+        
+        <div id="login-screen" class="screen active">
+            <h2>Cajero Automático</h2>
+            <p>Por seguridad, ingrese su NIP</p>
+            
+            <input type="password" id="nip-input" placeholder="••••" maxlength="4" autocomplete="off">
+            
+            <button class="btn-ingresar" onclick="verificarNip()">INGRESAR</button>
+            <p id="error-msg"></p>
+        </div>
+
+        <div id="main-screen" class="screen">
+            <h2>Bienvenido</h2>
+            
+            <div class="balance-box">
+                <small>Saldo Disponible</small>
+                <span class="balance-amount">$<span id="saldo-val">1000.00</span></span>
+            </div>
+            
+            <p>Monto de la operación:</p>
+            <input type="number" id="monto-input" placeholder="0.00" step="0.01">
+            
+            <button class="btn-op" onclick="procesar('depositar')">Depositar</button>
+            <button class="btn-op" onclick="procesar('retirar')">Retirar</button>
+            <button class="btn-exit" onclick="cerrarSesion()">Cerrar Sesión</button>
+        </div>
+
+    </div>
+
+    <script>
+        // Variables de estado
+        let saldoActual = 1000.00;
+        const NIP_REAL = "1234";
+        let intentosFallidos = 0;
+
+        function verificarNip() {
+            const inputVal = document.getElementById('nip-input').value;
+            const errorElement = document.getElementById('error-msg');
+
+            if (inputVal === NIP_REAL) {
+                // Éxito: Cambiamos de pantalla
+                document.getElementById('login-screen').classList.remove('active');
+                document.getElementById('main-screen').classList.add('active');
+                errorElement.innerText = ""; 
+            } else {
+                // Error: Manejo de intentos
+                intentosFallidos++;
+                if (intentosFallidos >= 3) {
+                    alert("CUENTA BLOQUEADA. Demasiados intentos fallidos.");
+                    window.location.reload(); // Reinicia la app
+                } else {
+                    errorElement.innerText = `NIP incorrecto. Intentos: ${intentosFallidos}/3`;
+                    document.getElementById('nip-input').value = ""; // Limpiar campo
+                }
+            }
+        }
+
+        function procesar(tipo) {
+            const montoInput = document.getElementById('monto-input');
+            const monto = parseFloat(montoInput.value);
+
+            if (isNaN(monto) || monto <= 0) {
+                alert("Ingrese una cantidad válida mayor a cero.");
+                return;
+            }
+
+            if (tipo === 'depositar') {
+                saldoActual += monto;
+                alert(`Depósito exitoso de $${monto.toFixed(2)}`);
+            } else if (tipo === 'retirar') {
+                if (monto <= saldoActual) {
+                    saldoActual -= monto;
+                    alert(`Retiro exitoso de $${monto.toFixed(2)}`);
+                } else {
+                    alert("Fondos insuficientes.");
+                }
+            }
+
+            // Actualizar la vista y limpiar el input
+            document.getElementById('saldo-val').innerText = saldoActual.toFixed(2);
+            montoInput.value = "";
+        }
+
+        function cerrarSesion() {
+            alert("Saliendo de forma segura...");
+            window.location.reload();
+        }
+    </script>
+</body>
+</html>
