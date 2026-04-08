@@ -7,3 +7,6 @@ no deje subirlo
 - se implemento condicionales tales como 
 - if  que lo que hace es que pasaria si tal condicicion se cumple o no 
 - y el else que si no pasa la condicion  te arroja el resultado  
+
+## clase docker 
+# archivo main
